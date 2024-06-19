@@ -79,7 +79,7 @@ std::map<std::string,int> behavior_to_int;
 std::map<int,std::string> int_to_signal; 
 std::map<int,std::string> int_to_behavior; 
 
-void setup_signal_behavior_dictionaries( void )
+void setup_signal_behavior_dictionaries( bool show_info )
 {
 	extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 	extern std::unordered_map<int,int> cell_definition_indices_by_type; 
@@ -542,8 +542,11 @@ void setup_signal_behavior_dictionaries( void )
     // resize scales; 
     signal_scales.resize( int_to_signal.size() , 1.0 ); 
 
-    display_signal_dictionary(); 
-    display_behavior_dictionary(); 
+    if (show_info)
+    {
+        display_signal_dictionary(); 
+        display_behavior_dictionary(); 
+    }
 /*
 	// now create empty SR models for each cell definition 
 

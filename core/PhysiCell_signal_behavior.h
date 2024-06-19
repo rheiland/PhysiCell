@@ -84,7 +84,7 @@ double& signal_scale( std::string signal_name ); // done
 double& signal_scale( int signal_index ); // done 
 
 // create the signal and behavior dictionaries 
-void setup_signal_behavior_dictionaries( void ); // done 
+void setup_signal_behavior_dictionaries( bool show_info=true) ; // done 
 
 // display dictionaries 
 void display_signal_dictionary( void ); // done 
