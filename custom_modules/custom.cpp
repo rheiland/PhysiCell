@@ -127,7 +127,7 @@ void create_cell_types( void )
 	cell_defaults.functions.update_phenotype = phenotype_function; 
 	cell_defaults.functions.custom_cell_rule = custom_function; 
 	cell_defaults.functions.contact_function = contact_function; 
-    // cell_defaults.functions.cell_division_function = custom_division_function; 
+    cell_defaults.functions.cell_division_function = custom_division_function; 
 	cell_defaults.functions.volume_update_function = cyrene_volume_update_function;
 
     // int idx_ctype1 = find_cell_definition_index("ctype1");
@@ -235,10 +235,32 @@ void cyrene_volume_update_function( Cell* pCell, Phenotype& phenotype , double d
     double current_volume = pCell->phenotype.volume.total;
     // Calculate the rate of change of volume
     double dVdt = k * pow(current_volume, b);
+
+
     // Update the volume based on the rate of change and the time step
-    double new_volume = current_volume + dVdt * dt;
+    // double new_volume = current_volume + dVdt * dt;
+    double new_volume = current_volume * 2.1;
+    if (UniformRandom() > 0.5)
+    {
+        new_volume *= 2;
+    }
+
+    double ratio = new_volume/current_volume;
+    // if (pCell->ID == 0)
+        std::cout << "   ----- "<<__FUNCTION__ << ": t=" << PhysiCell_globals.current_time << ": cell ID= " << pCell->ID << " new_volume/current_volume= " <<  ratio << std::endl;
     // Set the new volume
+
     pCell->set_total_volume(new_volume);
+
+    // if (ratio > 4.0)
+    // {
+    //     pCell->divide();
+    //     pCell->divide();
+    // }
+    if (ratio > 2.0)
+    {
+        pCell->divide();
+    }
     return;
 }
 
@@ -246,17 +268,9 @@ void custom_division_function( Cell* pCell1, Cell* pCell2 )
 { 
     static int idx_default = find_cell_definition_index("default");
     static int idx_ctype1 = find_cell_definition_index("ctype1");
-    std::cout << __FUNCTION__ << ": t=" << PhysiCell_globals.current_time << ": cell IDs= " << pCell1->ID << ", " << pCell2->ID << ", pCell1->type_name= " << pCell1->type_name << std::endl;
+    std::cout << "  /// " << __FUNCTION__ << ": t=" << PhysiCell_globals.current_time << ": cell volumes= " << pCell1->phenotype.volume.total << ", " << pCell2->phenotype.volume.total << std::endl;
 
-    // Asymmetric division
-    if (UniformRandom() < 0.5)
-    {
-        pCell2->convert_to_cell_definition( *cell_definitions_by_index[idx_default] ); 
-    }
-    else
-    {
-        pCell2->convert_to_cell_definition( *cell_definitions_by_index[idx_ctype1] ); 
-    }
+    // do a test on their volumes and decide whether divide() needs called here/again
 
     return; 
 }
