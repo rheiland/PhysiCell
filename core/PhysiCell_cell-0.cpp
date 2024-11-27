@@ -88,9 +88,7 @@
 #include <algorithm>
 #include <iterator> 
 
-
 namespace PhysiCell{
-std::vector<Cell*> cells_have_died;  //rwh
 
 std::unordered_map<std::string,Cell_Definition*> cell_definitions_by_name; 
 std::unordered_map<int,Cell_Definition*> cell_definitions_by_type; 
@@ -838,7 +836,6 @@ Cell_Container * Cell::get_container()
 
 void Cell::die()
 {
-    cells_have_died.push_back(this);  //rwh
 	delete_cell(this);
 	return; 
 } 

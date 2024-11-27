@@ -973,7 +973,6 @@ std::vector<double> get_selected_signals( Cell* pCell , std::vector<std::string>
 
 double get_single_signal( Cell* pCell, int index )
 {
-    extern std::vector<Cell*> cells_have_died;  //rwh
 	static int m = microenvironment.number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
@@ -1044,17 +1043,7 @@ double get_single_signal( Cell* pCell, int index )
 		int live_cells = 0; 
 		for( int i=0; i < pCell->state.neighbors.size(); i++ )
 		{
-			Cell* pC = pCell->state.neighbors[i];   //rwh: bogus? (cell that die())
-
-            auto it = std::find(cells_have_died.begin(), cells_have_died.end(), pC);
-            if (it != cells_have_died.end()) {
-                std::cout << "ERROR! rwh4: dead/deleted cell at index: " << std::distance(cells_have_died.begin(), it) << std::endl;
-                // printf("rwh5:   addr= %p\n", (void *)cells_have_died[it] );
-                printf("rwh5:   addr= %p\n", (void *)pC );
-                // std::cout << "rwh5:   addr= "<<cells_have_died[it] << std::endl ;
-                exit(-1);
-            }
-            // printf("--rwh3:   pC %p\n", (void *)pC );
+			Cell* pC = pCell->state.neighbors[i]; 
 			if( pC->phenotype.death.dead == true )
 			{
 				dead_cells++;

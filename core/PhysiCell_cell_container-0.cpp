@@ -188,8 +188,6 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		}
 		for( int i=0; i < cells_ready_to_die.size(); i++ )
 		{	
-            // std::cout <<" rwh: die ptr= " << 
-            printf("rwh1: die %p\n", (void *)cells_ready_to_die[i] );
 			cells_ready_to_die[i]->die();	
 		}
 		num_divisions_in_current_step+=  cells_ready_to_divide.size();
@@ -292,15 +290,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			// there might be a lot of "dummy" cells ready for removal. Let's do it. 		
 			*/
 			for( int i=0; i < cells_ready_to_die.size(); i++ )
-			{ 
-                printf("rwh2:   die %p\n", (void *)cells_ready_to_die[i] );
-                // printf("    --- has %d nbrs\n", cells_ready_to_die[i]->state.neighbors.size() );
-			    for( int j=0; j < cells_ready_to_die[i]->state.neighbors.size(); j++ )
-                    std::cout<<"    --- has nbr= " << cells_ready_to_die[i]->state.neighbors[j] << std::endl;
-
-                // cells_ready_to_die[i] = NULL;  //rwh
-                cells_ready_to_die[i]->die(); 
-            }
+			{ cells_ready_to_die[i]->die(); }
 			cells_ready_to_die.clear();
 		}
 		

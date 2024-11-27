@@ -1,63 +1,65 @@
-VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
-PROGRAM_NAME := project
+# assumes you've done: "brew install libomp"
+
+# VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
+#PROGRAM_NAME := fix_motion_clang
+PROGRAM_NAME := project_clang_debug
 
 CC := g++
-# CC := g++-mp-7 # typical macports compiler name
-# CC := g++-7 # typical homebrew compiler name 
-
 # Check for environment definitions of compiler 
-# e.g., on CC = g++-7 on OSX
 ifdef PHYSICELL_CPP 
 	CC := $(PHYSICELL_CPP)
 endif
 
-ifndef STATIC_OPENMP
-	STATIC_OPENMP = -fopenmp
-endif
+# If using MacOS system clang++, PLUS the "-Xpreprocessor -fopenmp"
+CC := clang++
 
-ARCH := native # best auto-tuning
-# ARCH := core2 # a reasonably safe default for most CPUs since 2007
-# ARCH := corei7
-# ARCH := corei7-avx # earlier i7 
-# ARCH := core-avx-i # i7 ivy bridge or newer 
-# ARCH := core-avx2 # i7 with Haswell or newer
-# ARCH := nehalem
-# ARCH := westmere
-# ARCH := sandybridge # circa 2011
-# ARCH := ivybridge   # circa 2012
-# ARCH := haswell     # circa 2013
-# ARCH := broadwell   # circa 2014
-# ARCH := skylake     # circa 2015
-# ARCH := bonnell
-# ARCH := silvermont
-# ARCH := skylake-avx512
-# ARCH := nocona #64-bit pentium 4 or later 
+
+#ARCH := native # best auto-tuning
+ARCH := arm64
+#ARCH := arm
 
 # CFLAGS := -march=$(ARCH) -Ofast -s -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
-CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+#CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 
-ifeq ($(OS),Windows_NT)
-else
-	UNAME_S := $(shell uname -s)
-	ifeq ($(UNAME_S),Darwin)
-		UNAME_P := $(shell uname -p)
-		var := $(shell which $(CC) | xargs file)
-		ifeq ($(lastword $(var)),arm64)
-		  CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -fopenmp -m64 -std=c++11 -Wno-deprecated-declarations
-		endif
-	endif
-endif
+# NOTE: don't optimize if debugging!
+#CFLAGS := -g  -fomit-frame-pointer -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/include
+#CFLAGS := -g  -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/include
+#CFLAGS :=  -O3 -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/include
+#CFLAGS :=  -arch x86_64 -O3 -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/include
 
-CFLAGS_LINK := $(shell echo $(CFLAGS) | sed -e "s/-fopenmp//g")
-COMPILE_COMMAND := $(CC) $(CFLAGS)  $(EXTRA_FLAGS)
-LINK_COMMAND := $(CC) $(CFLAGS_LINK) $(EXTRA_FLAGS)
+#OMP_ROOT := /opt/homebrew/Cellar/libomp/17.0.6
+OMP_ROOT := /opt/homebrew/opt/libomp
+
+# May 2024:  brew install libomp
+#  export LDFLAGS="-L/opt/homebrew/opt/libomp/lib"
+#  export CPPFLAGS="-I/opt/homebrew/opt/libomp/include"
+
+# using x86_64 brew and libomp install!
+#CFLAGS :=  -arch x86_64 -O3 -Xpreprocessor -fopenmp -m64 -std=c++11 -I/usr/local/opt/libomp/include
+#CFLAGS :=  -arch x86_64 -O3 -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/Cellar/libomp/include
+#CFLAGS :=  -arch arm64 -O3 -Xpreprocessor -fopenmp -m64 -std=c++11 -I$(OMP_ROOT)/include
+
+# arg,  march not supported on arm64!
+#CFLAGS := -march=$(ARCH) -g  -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/include
+CFLAGS :=  -g -fomit-frame-pointer -Xpreprocessor -fopenmp -m64 -std=c++11 -I/opt/homebrew/opt/libomp/include -Wno-deprecated-declarations
+#CFLAGS :=  -O3 -fomit-frame-pointer -Xpreprocessor -fopenmp -m64 -std=c++11 -I/usr/local/opt/libomp/include
+
+#PATH_TO_OMP := -L/usr/local/opt/libomp/lib
+#PATH_TO_OMP := -L/opt/homebrew/lib
+PATH_TO_OMP := -L/opt/homebrew/opt/libomp/lib
+# using x86_64 brew and libomp install!
+#PATH_TO_OMP := -L/usr/local/opt/libomp/lib
+#PATH_TO_OMP := -L/opt/homebrew/Cellar/libomp/17.0.6/lib
+
+COMPILE_COMMAND := $(CC) $(CFLAGS) 
+
 
 BioFVM_OBJECTS := BioFVM_vector.o BioFVM_mesh.o BioFVM_microenvironment.o BioFVM_solvers.o BioFVM_matlab.o \
 BioFVM_utilities.o BioFVM_basic_agent.o BioFVM_MultiCellDS.o BioFVM_agent_container.o 
 
 PhysiCell_core_OBJECTS := PhysiCell_phenotype.o PhysiCell_cell_container.o PhysiCell_standard_models.o \
 PhysiCell_cell.o PhysiCell_custom.o PhysiCell_utilities.o PhysiCell_constants.o PhysiCell_basic_signaling.o \
-PhysiCell_signal_behavior.o PhysiCell_rules.o
+PhysiCell_signal_behavior.o  PhysiCell_rules.o 
 
 PhysiCell_module_OBJECTS := PhysiCell_SVG.o PhysiCell_pathology.o PhysiCell_MultiCellDS.o PhysiCell_various_outputs.o \
 PhysiCell_pugixml.o PhysiCell_settings.o PhysiCell_geometry.o
@@ -73,12 +75,11 @@ ALL_OBJECTS := $(PhysiCell_OBJECTS) $(PhysiCell_custom_module_OBJECTS)
 
 # compile the project 
 
-all: main.cpp $(ALL_OBJECTS)
-	$(COMPILE_COMMAND) -o $(PROGRAM_NAME) $(ALL_OBJECTS) main.cpp 
-	make name
+# $(COMPILE_COMMAND) $(PATH_TO_OMP) -lomp -o $(PROGRAM_NAME) $(ALL_OBJECTS) main.cpp
+# $(COMPILE_COMMAND) -L/usr/local/opt/libomp/lib -lomp -o $(PROGRAM_NAME) $(ALL_OBJECTS) main.cpp
 
-static: main.cpp $(ALL_OBJECTS) $(MaBoSS)
-	$(LINK_COMMAND) $(INC) -o $(PROGRAM_NAME) $(ALL_OBJECTS) main.cpp $(LIB) -static-libgcc -static-libstdc++ $(STATIC_OPENMP)
+all: main.cpp $(ALL_OBJECTS)
+	$(COMPILE_COMMAND) $(PATH_TO_OMP) -lomp -o $(PROGRAM_NAME) $(ALL_OBJECTS) main.cpp
 
 name:
 	@echo ""
@@ -113,7 +114,7 @@ PhysiCell_constants.o: ./core/PhysiCell_constants.cpp
 	
 PhysiCell_signal_behavior.o: ./core/PhysiCell_signal_behavior.cpp
 	$(COMPILE_COMMAND) -c ./core/PhysiCell_signal_behavior.cpp 
-	
+
 PhysiCell_rules.o: ./core/PhysiCell_rules.cpp
 	$(COMPILE_COMMAND) -c ./core/PhysiCell_rules.cpp 
 
@@ -277,9 +278,10 @@ upgrade: $(SOURCE)
 	rm -f -r PhysiCell
 	rm -f $(SOURCE) 
 
-# use: make save PROJ=your_project_name
+#===================================================================
+#-------------  1.10.5 addition to save user projects --------------
+# useage: make save PROJ=your_project_name
 PROJ := my_project
-
 save: 
 	echo "Saving project as $(PROJ) ... "
 	mkdir -p ./user_projects
@@ -292,6 +294,7 @@ save:
 	cp ./config/* ./user_projects/$(PROJ)/config
 	cp ./custom_modules/* ./user_projects/$(PROJ)/custom_modules
 
+# useage: make load PROJ=your_project_name
 load: 
 	echo "Loading project from $(PROJ) ... "
 	cp ./user_projects/$(PROJ)/main.cpp .
@@ -299,25 +302,21 @@ load:
 	cp ./user_projects/$(PROJ)/config/* ./config/ 
 	cp ./user_projects/$(PROJ)/custom_modules/* ./custom_modules/ 
 
-pack:
-	@echo " "
-	@echo "Preparing project $(PROJ) for sharing ... "
+# useage: make share PROJ=your_project_name
+share: 
+	@echo "Preparing your project for sharing from $(PROJ) ... "
 	@echo " " 
-	cd ./user_projects && zip -r $(PROJ).zip $(PROJ)
+	zip -r $(PROJ)_$$(date +%b_%d_%Y_%H%M).zip ./user_projects/$(PROJ)/* 
+	@echo "Project saved in $(PROJ)_$$(date +%b_%d_%Y_%H%M).zip."
+	@echo "It can be unzipped (or use tar -xvf) in a PhysiCell root directory."
 	@echo " "
-	@echo "Share ./user_projects/$(PROJ).zip ... "
-	@echo "Other users can unzip $(PROJ).zip in their ./user_projects, compile, and run."
-	@echo " " 
 
-unpack:
-	@echo " "
-	@echo "Preparing shared project $(PROJ).zip for use ... "
+# sci_package: make sci_package PROJ=your_project_name
+sci_package: 
+	@echo "Preparing your project for scientific archival from $(PROJ) ... "
 	@echo " " 
-	cd ./user_projects && unzip $(PROJ).zip 
+	touch output/empty.txt
+	zip -r $(PROJ)_packaged_$$(date +%b_%d_%Y_%H%M).zip main.cpp Makefile ./config/* ./BioFVM/* VERSION.txt ./custom_modules/* ./core/* ./addons/* ./licenses/* ./modules/* ./output/empty.txt
+	@echo "Project saved in $(PROJ)_packaged_$$(date +%b_%d_%Y_%H%M).zip."
+	@echo "It is fully self-contained and can be distributed as a separate GitHub repository."
 	@echo " "
-	@echo "Load this project via make load PROJ=$(PROJ) ... "
-	@echo " " 	
-
-list-user-projects:
-	@echo "user projects::"
-	@cd ./user_projects && ls -dt1 * | grep . | sed 's!empty.txt!!'
