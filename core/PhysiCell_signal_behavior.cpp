@@ -1050,7 +1050,7 @@ double get_single_signal( Cell* pCell, int index )
             if (it != cells_have_died.end()) {
                 std::cout << "ERROR! rwh4: dead/deleted cell at index: " << std::distance(cells_have_died.begin(), it) << std::endl;
                 // printf("rwh5:   addr= %p\n", (void *)cells_have_died[it] );
-                printf("rwh5:   addr= %p\n", (void *)pC );
+                printf("rwh5:   addr= %p    --> error, exiting!\n", (void *)pC );
                 // std::cout << "rwh5:   addr= "<<cells_have_died[it] << std::endl ;
                 exit(-1);
             }

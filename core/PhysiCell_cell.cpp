@@ -839,6 +839,7 @@ Cell_Container * Cell::get_container()
 void Cell::die()
 {
     cells_have_died.push_back(this);  //rwh
+    printf("rwh0: die():   die %p\n", (void *)this );
 	delete_cell(this);
 	return; 
 } 
