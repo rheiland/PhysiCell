@@ -836,20 +836,6 @@ Cell_Container * Cell::get_container()
 
 void Cell::die()
 {
-    for( int idx=0; idx < this->state.neighbors.size(); idx++ )
-    {
-        Cell* pC = this->state.neighbors[idx];
-        for( int jdx=0; jdx < pC->state.neighbors.size(); jdx++ )
-        {
-            Cell* pC2 = pC->state.neighbors[jdx];
-            if (pC2 == this)
-            {
-                std::cout << "    --- nbr "<<jdx<< " has die() cell as a nbr\n";
-                pC->state.neighbors.erase(find(pC->state.neighbors.begin(), pC->state.neighbors.end(), this));
-            }
-        }
-    }
-
 	delete_cell(this);
 	return; 
 } 
