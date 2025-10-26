@@ -106,6 +106,8 @@ void write_neighbor_graph( std::string filename );
 void write_attached_cells_graph( std::string filename ); 
 void write_spring_attached_cells_graph( std::string filename ); 
 
+void read_PhysiCell_cells_from_matlab_v2(std::string filename, Microenvironment& M);
+
 };
 
 #endif
