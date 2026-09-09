@@ -75,6 +75,9 @@
 #include <vector>
 #include <chrono>
 #include <random>
+#include <ostream>
+#include <vector>
+
 
 #include <omp.h> 
 
@@ -112,6 +115,19 @@ void add_software_citation( std::string name , std::string version, std::string 
 int choose_event( std::vector<double>& probabilities ); 
 
 void copy_file_to_output( std::string filename );
+
+// Helper function to output std::vector to ostream
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        if (i > 0) os << ", ";
+        os << vec[i];
+    }
+    os << " ]";
+    return os;
+}
+
 };
 
 #endif
