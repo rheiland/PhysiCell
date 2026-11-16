@@ -345,7 +345,6 @@
 				<molecular />
 			</phenotype>
 			<custom_data>  
-				<relative_sated_volume units="dimensionless">1.5</relative_sated_volume>
 			</custom_data>
 		</cell_definition>
 		
